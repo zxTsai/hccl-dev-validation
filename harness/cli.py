@@ -7,10 +7,13 @@ from harness.case_loader import CaseLoadError
 from harness.runner import run_dir, run_single, summarize
 
 
+SUCCESS_STATUSES = {"PASS", "SKIP", "DRY_RUN"}
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     report = run_single(args.case, dry_run=args.dry_run, timeout_sec=args.timeout_sec)
     _print_case_report(report)
-    return 0 if report["status"] in {"PASS", "SKIP"} else 1
+    return 0 if report["status"] in SUCCESS_STATUSES else 1
 
 
 def cmd_run_dir(args: argparse.Namespace) -> int:
@@ -26,7 +29,7 @@ def cmd_run_dir(args: argparse.Namespace) -> int:
     if args.summary:
         print("summary.json: outputs/reports/summary.json")
         print("summary.md: outputs/reports/summary.md")
-    return 0 if all(item["status"] in {"PASS", "SKIP"} for item in reports) else 1
+    return 0 if all(item["status"] in SUCCESS_STATUSES for item in reports) else 1
 
 
 def cmd_summarize(args: argparse.Namespace) -> int:

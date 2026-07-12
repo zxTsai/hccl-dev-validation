@@ -187,19 +187,20 @@ def write_final_real_run_report(
             f"- PASS: {status_counts.get('PASS', 0)}",
             f"- FAIL: {status_counts.get('FAIL', 0)}",
             f"- SKIP/DISABLED: {status_counts.get('SKIP', 0) + status_counts.get('DISABLED', 0)}",
+            f"- DRY_RUN: {status_counts.get('DRY_RUN', 0)}",
             "",
             "## 按通信原语统计",
             "",
-            "| Op | PASS | FAIL | SKIP |",
-            "| --- | ---: | ---: | ---: |",
+            "| Op | PASS | FAIL | SKIP | DRY_RUN |",
+            "| --- | ---: | ---: | ---: | ---: |",
         ]
     )
     for op, counter in sorted(op_counts.items()):
-        lines.append(f"| {op} | {counter.get('PASS', 0)} | {counter.get('FAIL', 0)} | {counter.get('SKIP', 0)} |")
+        lines.append(f"| {op} | {counter.get('PASS', 0)} | {counter.get('FAIL', 0)} | {counter.get('SKIP', 0)} | {counter.get('DRY_RUN', 0)} |")
 
-    lines.extend(["", "## 按 Scale 统计", "", "| Scale | PASS | FAIL | SKIP |", "| --- | ---: | ---: | ---: |"])
+    lines.extend(["", "## 按 Scale 统计", "", "| Scale | PASS | FAIL | SKIP | DRY_RUN |", "| --- | ---: | ---: | ---: | ---: |"])
     for scale, counter in sorted(scale_counts.items()):
-        lines.append(f"| {scale} | {counter.get('PASS', 0)} | {counter.get('FAIL', 0)} | {counter.get('SKIP', 0)} |")
+        lines.append(f"| {scale} | {counter.get('PASS', 0)} | {counter.get('FAIL', 0)} | {counter.get('SKIP', 0)} | {counter.get('DRY_RUN', 0)} |")
 
     lines.extend(
         [
@@ -247,7 +248,7 @@ def write_final_real_run_report(
             "",
             "- 对 FAIL case 先查看对应 `report.json`、`stderr.log`、`stdout.log` 和 `hccl_test.log`。",
             "- 若真实执行未开始，先在交互终端执行 `sudo -v`。",
-            "- AllToAllV 与 SendRecv 仍需确认稳定参数或真实可运行方式后再启用。",
+            "- SendRecv remains skipped until a confirmed send/recv or sendrecv hccl_test binary is available.",
         ]
     )
     target.write_text("\n".join(lines) + "\n", encoding="utf-8")

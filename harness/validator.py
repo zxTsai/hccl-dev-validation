@@ -12,7 +12,7 @@ def validate_case(case: dict[str, Any], result: Any, output_dir: str | Path | No
         }
 
     if getattr(result, "dry_run", False):
-        return {"status": "PASS", "fail_reasons": []}
+        return {"status": "DRY_RUN", "fail_reasons": []}
 
     expect = case.get("expect", {})
     fail_reasons: list[str] = []

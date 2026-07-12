@@ -162,6 +162,13 @@ def test_validator_timeout_fails():
     assert any("timed out" in x for x in validation["fail_reasons"])
 
 
+def test_validator_marks_dry_run_separately_from_pass():
+    case = load_case("cases/smoke/allreduce_2p.yaml")
+    validation = validate_case(case, Result(dry_run=True))
+    assert validation["status"] == "DRY_RUN"
+    assert validation["fail_reasons"] == []
+
+
 def test_run_dir_skips_disabled_case_in_dry_run():
     reports = run_dir("cases/primitives", dry_run=True, scale="small")
     disabled = [r for r in reports if r["case_name"] == "sendrecv_2p_small"]
@@ -172,6 +179,23 @@ def test_run_dir_filters_by_scale_in_dry_run():
     reports = run_dir("cases/primitives", dry_run=True, scale="basic")
     assert reports
     assert {r["scale"] for r in reports} == {"basic"}
+    enabled = [r for r in reports if r["enabled"]]
+    assert enabled
+    assert {r["status"] for r in enabled} == {"DRY_RUN"}
+
+
+def test_alltoallv_cases_are_enabled_with_required_patterns():
+    for case_name in ["alltoallv_4p_basic", "alltoallv_8p_medium"]:
+        case = load_case(f"cases/primitives/{case_name}.yaml")
+        assert case["enabled"] is True
+        assert "check_result:" in case["expect"]["required_log_patterns"]
+        assert "success" in case["expect"]["required_log_patterns"]
+
+
+def test_case_notes_do_not_contain_placeholder_garbling():
+    for path in Path("cases").rglob("*.yaml"):
+        text = path.read_text(encoding="utf-8")
+        assert "??" not in text, f"placeholder garbling remains in {path}"
 
 
 def test_report_writes_summary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

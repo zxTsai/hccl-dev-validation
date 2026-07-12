@@ -26,10 +26,11 @@ expect:
   - core dumped
   - comm is nullptr
 notes:
-  method: ?? HCCL-VM ?? ascend950 ?????mock-comm ?? 118??? mpirun -np 8 ?? hccl_test
-    ? all_reduce_test??? AllReduce ? 8 rank?medium ????? dtype/count ???????
-  expected_behavior: ?? rank ?????????hccl_test ?? check_result ? success?
-  check_method: '?? returncode ? 0???? HCCL-VM runner ???????hccl_test check_result
-    ? success ????????? [ERROR]?execute failed?RESULT: FAILED?Segmentation fault?core
-    dumped?comm is nullptr ??????'
+  method: Run HCCL-VM ascend950 topology with mock-comm 118; execute mpirun -np 8
+    all_reduce_test for AllReduce 8 rank medium validation using dtype=fp16 and count=4194304.
+  expected_behavior: All ranks enter the runner, hccl_test completes, check_result
+    is printed, and the result line is success.
+  check_method: 'Require returncode 0 plus runner lifecycle markers and hccl_test
+    check_result success; reject [ERROR], execute failed, RESULT: FAILED, Segmentation
+    fault, core dumped, and comm is nullptr.'
   reason: ''

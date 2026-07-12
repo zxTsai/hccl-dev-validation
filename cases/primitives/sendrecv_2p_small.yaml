@@ -21,7 +21,11 @@ expect:
   - core dumped
   - comm is nullptr
 notes:
-  method: ?? SendRecv ? 2 rank?small ???????????????? HCCL-VM ???
-  expected_behavior: ???????? case????????????????????
-  check_method: ?? case ? enabled=false ? notes.reason???? HCCL-VM ?????
-  reason: ?? hccl_test/bin ???? send/recv ? sendrecv ???????????
+  method: SendRecv placeholder case. Current CANN hccl_test/bin does not provide a
+    confirmed send/recv or sendrecv test binary.
+  expected_behavior: Keep this case skipped until a supported SendRecv test executable
+    and stable arguments are found.
+  check_method: Disabled case is reported as SKIP with this reason; it must not be
+    counted as a real PASS.
+  reason: No confirmed send/recv or sendrecv test binary exists under the current
+    CANN hccl_test/bin directory.

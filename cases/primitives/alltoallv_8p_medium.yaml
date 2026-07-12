@@ -6,13 +6,18 @@ dtype: fp16
 count: 4194304
 scale: medium
 backend: hccl_vm
-enabled: false
+enabled: true
 backend_config:
   case_config: case_configs/primitives/alltoallv_8p_medium_vm.json
   timeout_sec: 180
 expect:
   returncode: 0
-  required_log_patterns: []
+  required_log_patterns:
+  - rank ready, start runner
+  - Plugin [runner] exited successfully
+  - Shell exited. Host shutting down
+  - 'check_result:'
+  - success
   forbidden_log_patterns:
   - '[ERROR]'
   - execute failed
@@ -21,7 +26,13 @@ expect:
   - core dumped
   - comm is nullptr
 notes:
-  method: ?? AllToAllV ? 8 rank?medium ???????????????? HCCL-VM ???
-  expected_behavior: ???????? case????????????????????
-  check_method: ?? case ? enabled=false ? notes.reason???? HCCL-VM ?????
-  reason: ?? HCCL-VM ???????????????????????/??????
+  method: Run HCCL-VM ascend950 topology with mock-comm 118; execute mpirun -np 8
+    alltoallv_test for AllToAllV 8 rank medium validation using dtype=fp16 and count=4194304.
+    alltoallv_test builds sendCounts/sdispls/recvCounts/rdispls internally; the CLI
+    only needs the standard size, dtype, warmup, iteration and check arguments.
+  expected_behavior: All ranks enter the runner, hccl_test completes, check_result
+    is printed, and the result line is success.
+  check_method: 'Require returncode 0 plus runner lifecycle markers and hccl_test
+    check_result success; reject [ERROR], execute failed, RESULT: FAILED, Segmentation
+    fault, core dumped, and comm is nullptr.'
+  reason: ''
