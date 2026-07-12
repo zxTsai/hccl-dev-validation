@@ -138,7 +138,57 @@ cat outputs/runs/<run_dir>/stderr.log
 cat outputs/runs/<run_dir>/hccl_test.log
 ```
 
-## 5. 按规模跑 primitives
+## 5. HCCL Change Validation Workflow
+
+For daily development, use this loop: change HCCL code, build a package, install it into the CANN tree used by this harness, then run the harness.
+
+Set paths first:
+
+```bash
+export HCCL_SRC=/home/czx/code/hccl_master/hccl
+export CANN_HOME=/home/czx/cann/cann0625/cann
+```
+
+Build the HCCL package:
+
+```bash
+cd ${HCCL_SRC}
+bash build.sh --pkg --full
+```
+
+Install the generated `.run` package. Use the actual file under `build_out/`:
+
+```bash
+cd ${HCCL_SRC}
+./build_out/cann-hccl_*.run --full --install-path=${CANN_HOME%/cann} --quiet
+```
+
+Confirm the harness points to the same CANN tree:
+
+```bash
+grep -n "cann_home" /home/czx/code/hccl_dev_validation/configs/hccl_vm.yaml
+```
+
+Then run smoke first, followed by larger scales:
+
+```bash
+cd /home/czx/code/hccl_dev_validation
+python -m harness run cases/smoke/allreduce_2p.yaml --timeout-sec 600
+python -m harness run-dir cases/primitives/ --scale small --summary --timeout-sec 600
+python -m harness run-dir cases/primitives/ --scale basic --summary --timeout-sec 600
+python -m harness run-dir cases/primitives/ --scale medium --summary --timeout-sec 900
+```
+
+If the change touches shared communication code, finish with the full suite:
+
+```bash
+python -m harness run-dir cases/primitives/ --summary --timeout-sec 900
+python -m harness summarize
+```
+
+A local helper script also exists at `/home/czx/script/A5_hccl_st_test/build_hccl_test.sh`. Check the HCCL source path and install path inside that script before using it.
+
+## 6. 按规模跑 primitives
 
 建议按 small、basic、medium 逐步扩大。
 
@@ -170,18 +220,16 @@ python -m harness summarize
 当前已验证的全量结果是：
 
 ```text
-PASS: 15
-SKIP: 3
+PASS: 17
+SKIP: 1
 FAIL: 0
 ```
 
 3 个 SKIP 是当前未默认启用项：
 
-- `alltoallv_4p_basic`
-- `alltoallv_8p_medium`
 - `sendrecv_2p_small`
 
-## 6. 查看报告
+## 7. 查看报告
 
 汇总报告：
 
@@ -214,7 +262,7 @@ outputs/runs/<timestamp>_<case_name>/
 
 `outputs/` 已在 `.gitignore` 中忽略，不要提交大日志。
 
-## 7. 常用命令
+## 8. 常用命令
 
 查看 CLI 帮助：
 
@@ -250,7 +298,7 @@ python -m harness run-dir cases/primitives/ --scale medium --summary --timeout-s
 python -m harness summarize
 ```
 
-## 8. 当前覆盖范围
+## 9. 当前覆盖范围
 
 已默认启用并通过真实验证：
 
@@ -262,15 +310,15 @@ python -m harness summarize
 | Reduce | small/basic | 2/4 |
 | ReduceScatter | small/basic/medium | 2/4/8 |
 | AllToAll | basic/medium | 4/8 |
+| AllToAllV | basic/medium | 4/8 |
 
 暂未默认启用：
 
 | Op | Case | 原因 |
 | --- | --- | --- |
-| AllToAllV | `alltoallv_4p_basic`, `alltoallv_8p_medium` | 二进制存在，参数格式已确认，但 YAML 当前仍保持 disabled，启用前建议再跑一轮独立验证 |
 | SendRecv | `sendrecv_2p_small` | 当前 `hccl_test/bin` 下没有明确 send/recv 或 sendrecv 测试二进制 |
 
-## 9. AllToAllV 参数格式
+## 10. AllToAllV 参数格式
 
 `alltoallv_test` 的命令行参数和其它 `hccl_test` 算子一致，不需要在命令行传 `sendCounts/sdispls/recvCounts/rdispls`。这些数组由测试程序内部构造。
 
@@ -292,7 +340,7 @@ mpirun --allow-run-as-root --oversubscribe -np 8 \
 
 HCCL API 层的 AllToAllV 需要 `sendCounts`、`sdispls`、`recvCounts`、`rdispls`，但当前 `alltoallv_test` CLI 不暴露这些参数。
 
-## 10. Case 文件结构
+## 11. Case 文件结构
 
 每个用例由两部分组成。
 
@@ -330,7 +378,7 @@ case_configs/primitives/allreduce_4p_basic_vm.json
 
 新增 case 时，先复制一个相近的 YAML 和 JSON，再改 op、rank、dtype、count、args、mock-comm 和校验规则。
 
-## 11. PASS/FAIL/SKIP 判断
+## 12. PASS/FAIL/SKIP 判断
 
 PASS 需要同时满足：
 
@@ -362,7 +410,7 @@ comm is nullptr
 
 注意：普通 `failed` 不作为全局失败关键字，因为真实 HCCL-VM 日志里存在 harmless warning，例如 `exchange capture mode failed`。
 
-## 12. 常见问题
+## 13. 常见问题
 
 ### sudo 预检失败
 
@@ -425,7 +473,7 @@ cat outputs/runs/<run_dir>/hccl_test.log
 - HCCL 算子真实失败
 - validator 误判
 
-## 13. 工程边界
+## 14. 工程边界
 
 当前 harness 不做这些事：
 
