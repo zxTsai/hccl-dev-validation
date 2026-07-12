@@ -1,0 +1,43 @@
+name: hccl_vm
+
+# Local paths for this development machine. Change these values when moving the
+# harness to another environment.
+hccl_vm_root: /home/czx/code/hccl_vm
+install_dir: /home/czx/code/hccl_vm/hccl_vm_install
+cann_home: /home/czx/cann/cann0625/cann
+
+shell: bash
+mode: AIV
+topology: ascend950_cluster_32_server_normal.yaml
+timeout_sec: 180
+
+preflight:
+  sudo_required: true
+  require_tty: false
+
+# HCCL-VM currently starts an interactive shell; case_config is consumed by the
+# harness to build the mpirun command inside that shell.
+command_template:
+  - "{hccl_vm_bin}"
+  - "start"
+  - "{topology}"
+
+mock_comm_by_rank:
+  "2": "112"
+  "4": "114"
+  "8": "118"
+  "16": "128"
+
+env:
+  ASCEND_SLOG_PRINT_TO_STDOUT: "1"
+  HCCL_LOG_LEVEL: "INFO"
+
+cleanup_shm:
+  - /dev/shm/HcclAicpuData
+  - /dev/shm/hccl_sync
+  - /dev/shm/Hccl*
+  - /dev/shm/DEV*
+
+timeout_cleanup_process_patterns:
+  - hccl-vm start
+  - mpirun --allow-run-as-root

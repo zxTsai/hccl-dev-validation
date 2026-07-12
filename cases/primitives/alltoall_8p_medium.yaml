@@ -1,0 +1,35 @@
+name: alltoall_8p_medium
+category: primitives
+op: AllToAll
+rank_size: 8
+dtype: fp16
+count: 4194304
+scale: medium
+backend: hccl_vm
+enabled: true
+backend_config:
+  case_config: case_configs/primitives/alltoall_8p_medium_vm.json
+  timeout_sec: 180
+expect:
+  returncode: 0
+  required_log_patterns:
+  - rank ready, start runner
+  - Plugin [runner] exited successfully
+  - Shell exited. Host shutting down
+  - 'check_result:'
+  - success
+  forbidden_log_patterns:
+  - '[ERROR]'
+  - execute failed
+  - 'RESULT: FAILED'
+  - Segmentation fault
+  - core dumped
+  - comm is nullptr
+notes:
+  method: ?? HCCL-VM ?? ascend950 ?????mock-comm ?? 118??? mpirun -np 8 ?? hccl_test
+    ? alltoall_test??? AllToAll ? 8 rank?medium ????? dtype/count ???????
+  expected_behavior: ?? rank ?????????hccl_test ?? check_result ? success?
+  check_method: '?? returncode ? 0???? HCCL-VM runner ???????hccl_test check_result
+    ? success ????????? [ERROR]?execute failed?RESULT: FAILED?Segmentation fault?core
+    dumped?comm is nullptr ??????'
+  reason: ''

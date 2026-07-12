@@ -1,0 +1,26 @@
+{
+  "topology": "ascend950_cluster_32_server_normal.yaml",
+  "mode": "AIV",
+  "mock_comm": "114",
+  "np": 4,
+  "hccl_test_bin": "all_reduce_test",
+  "args": [
+    "-b",
+    "1048576",
+    "-e",
+    "1048576",
+    "-d",
+    "fp32",
+    "-o",
+    "sum",
+    "-w",
+    "0",
+    "-n",
+    "1",
+    "-c",
+    "1"
+  ],
+  "result_log": "log_allreduce_4p_basic.txt",
+  "timeout_sec": 180,
+  "summary_grep": "check_result|success|\\[error\\]|execute failed|comm is nullptr"
+}

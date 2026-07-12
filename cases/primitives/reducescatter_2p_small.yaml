@@ -1,0 +1,35 @@
+name: reducescatter_2p_small
+category: primitives
+op: ReduceScatter
+rank_size: 2
+dtype: fp32
+count: 4096
+scale: small
+backend: hccl_vm
+enabled: true
+backend_config:
+  case_config: case_configs/primitives/reducescatter_2p_small_vm.json
+  timeout_sec: 180
+expect:
+  returncode: 0
+  required_log_patterns:
+  - rank ready, start runner
+  - Plugin [runner] exited successfully
+  - Shell exited. Host shutting down
+  - 'check_result:'
+  - success
+  forbidden_log_patterns:
+  - '[ERROR]'
+  - execute failed
+  - 'RESULT: FAILED'
+  - Segmentation fault
+  - core dumped
+  - comm is nullptr
+notes:
+  method: ?? HCCL-VM ?? ascend950 ?????mock-comm ?? 112??? mpirun -np 2 ?? hccl_test
+    ? reduce_scatter_test??? ReduceScatter ? 2 rank?small ????? dtype/count ???????
+  expected_behavior: ?? rank ?????????hccl_test ?? check_result ? success?
+  check_method: '?? returncode ? 0???? HCCL-VM runner ???????hccl_test check_result
+    ? success ????????? [ERROR]?execute failed?RESULT: FAILED?Segmentation fault?core
+    dumped?comm is nullptr ??????'
+  reason: ''

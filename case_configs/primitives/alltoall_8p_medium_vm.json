@@ -1,0 +1,24 @@
+{
+  "topology": "ascend950_cluster_32_server_normal.yaml",
+  "mode": "AIV",
+  "mock_comm": "118",
+  "np": 8,
+  "hccl_test_bin": "alltoall_test",
+  "args": [
+    "-b",
+    "4194304",
+    "-e",
+    "4194304",
+    "-d",
+    "fp16",
+    "-w",
+    "0",
+    "-n",
+    "1",
+    "-c",
+    "1"
+  ],
+  "result_log": "log_alltoall_8p_medium.txt",
+  "timeout_sec": 180,
+  "summary_grep": "check_result|success|\\[error\\]|execute failed|comm is nullptr"
+}

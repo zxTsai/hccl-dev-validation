@@ -1,0 +1,35 @@
+name: allgather_4p_basic
+category: primitives
+op: AllGather
+rank_size: 4
+dtype: fp32
+count: 1048576
+scale: basic
+backend: hccl_vm
+enabled: true
+backend_config:
+  case_config: case_configs/primitives/allgather_4p_basic_vm.json
+  timeout_sec: 180
+expect:
+  returncode: 0
+  required_log_patterns:
+  - rank ready, start runner
+  - Plugin [runner] exited successfully
+  - Shell exited. Host shutting down
+  - 'check_result:'
+  - success
+  forbidden_log_patterns:
+  - '[ERROR]'
+  - execute failed
+  - 'RESULT: FAILED'
+  - Segmentation fault
+  - core dumped
+  - comm is nullptr
+notes:
+  method: ?? HCCL-VM ?? ascend950 ?????mock-comm ?? 114??? mpirun -np 4 ?? hccl_test
+    ? all_gather_test??? AllGather ? 4 rank?basic ????? dtype/count ???????
+  expected_behavior: ?? rank ?????????hccl_test ?? check_result ? success?
+  check_method: '?? returncode ? 0???? HCCL-VM runner ???????hccl_test check_result
+    ? success ????????? [ERROR]?execute failed?RESULT: FAILED?Segmentation fault?core
+    dumped?comm is nullptr ??????'
+  reason: ''

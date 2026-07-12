@@ -1,0 +1,24 @@
+{
+  "topology": "ascend950_cluster_32_server_normal.yaml",
+  "mode": "AIV",
+  "mock_comm": "112",
+  "np": 2,
+  "hccl_test_bin": "all_gather_test",
+  "args": [
+    "-b",
+    "4096",
+    "-e",
+    "4096",
+    "-d",
+    "fp32",
+    "-w",
+    "0",
+    "-n",
+    "1",
+    "-c",
+    "1"
+  ],
+  "result_log": "log_allgather_2p_small.txt",
+  "timeout_sec": 180,
+  "summary_grep": "check_result|success|\\[error\\]|execute failed|comm is nullptr"
+}
